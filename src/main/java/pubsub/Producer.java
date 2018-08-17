@@ -22,7 +22,8 @@ public class Producer {
 
             Global.requests.put(product);
 
-            System.out.println(Thread.currentThread().getName()+" == producing == ");
+            System.out.println(Thread.currentThread().getName()+" == producing == \n"+Global.requests);
+
 
             return product;
         };

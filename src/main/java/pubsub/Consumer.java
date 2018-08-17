@@ -30,8 +30,8 @@ public class Consumer {
                  */
                 String product = Global.requests.take();
                 Future<String> future = Global.pool.submit(this.asyncHandle(product));
-
-                System.out.println("服务器 本次请求处理完毕" + future.get());
+                System.out.println("服务器 本次请求处理完毕 "+ product);
+               // System.out.println("服务器 本次请求处理完毕" + future.get());
             }
 
             return null;
