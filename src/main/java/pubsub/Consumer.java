@@ -30,7 +30,7 @@ public class Consumer {
                  */
                 String product = Global.requests.take();
                 Future<String> future = Global.pool.submit(this.asyncHandle(product));
-                System.out.println("服务器 本次请求处理完毕 "+ product);
+                System.out.println("服务器 本次请求接收完毕 "+ product);
                // System.out.println("服务器 本次请求处理完毕" + future.get());
             }
 
@@ -42,39 +42,53 @@ public class Consumer {
 
     public Callable<String> asyncHandle(String product){
 
-        return ()->{
-            System.out.println("服务端controller  我正在消费product，例如保存到数据库，发送对应的一封邮件，等等许多耗时操作。 "+product);
+        return ()-> {
+            System.out.println("服务端controller  我正在消费product，例如保存到数据库，发送对应的一封邮件，等等许多耗时操作。 " + product);
 
             TimeUnit.SECONDS.sleep(1);
-            System.out.println(Thread.currentThread().getName()+" == actual handling == ");
-            System.out.println(product.substring(product.lastIndexOf(".")+1));
-            Integer number = Integer.parseInt(product.substring(product.lastIndexOf(".")+1));
-
-            // if ((number&1) == 0 ){说明number不是以1结尾的二进制数字，也就是偶数} 不过为了代码可读性，有时候更愿意牺牲性能，不进行位运算。
-            Class<?> clazz = kettyListener.getClass();
-
-            /**
-            **
-            * xieweig notes: 此处代码虽然重复，但是if return这种代码结构思路非常清晰，值得拥有
-             * 一边复习字符串驱动，一边练习if return。如果有大量的代码重复，那似乎说明应该单独截取if return的结构为一个方法，而不是放弃使用if return
-            */
-            if (number%2 == 0){
-                Method method = clazz.getMethod("method2", Integer.class);
-                method.invoke(kettyListener,number);
-                return product.substring(12);
+            System.out.println(Thread.currentThread().getName() + " == actual handling == ");
+            //信息分为两种一种是作为服务器处理客户端请求，一种是作为软件有开关功能
+            if (!product.startsWith("request")) {
+                //此时不处理请求
+                if (product.startsWith("stop")){
+                    System.out.println("正在关闭服务器");
+                    Global.looping=false;
+                    Global.requests.put("doNothing");return null;
+                }
+                if (product.startsWith("doNothing")){
+                    System.out.println("just_pass"); return  null;
+                }
             }
+                System.out.println(product.substring(product.lastIndexOf(".") + 1));
+                Integer number = Integer.parseInt(product.substring(product.lastIndexOf(".") + 1));
 
-            if (number%3 == 0){
-                Method method = clazz.getMethod("method3", Integer.class, String.class);
-                method.invoke(kettyListener,number," DatabaseName : KV");
-                //反射的包括number databaseName 甚至是className methodName 都可以是从前端的数据 product中取，先找map做映射 然后反射驱动，这边product设计简陋 只是一个字符串，最好是复杂对象 另外没有map kv映射 而是 简单一个if选择
+                // if ((number&1) == 0 ){说明number不是以1结尾的二进制数字，也就是偶数} 不过为了代码可读性，有时候更愿意牺牲性能，不进行位运算。
+                Class<?> clazz = kettyListener.getClass();
+
+                /**
+                 **
+                 * xieweig notes: 此处代码虽然重复，但是if return这种代码结构思路非常清晰，值得拥有
+                 * 一边复习字符串驱动，一边练习if return。如果有大量的代码重复，那似乎说明应该单独截取if return的结构为一个方法，而不是放弃使用if return
+                 */
+                if (number % 2 == 0) {
+                    Method method = clazz.getMethod("method2", Integer.class);
+                    method.invoke(kettyListener, number);
+                    return product.substring(12);
+                }
+
+                if (number % 3 == 0) {
+                    Method method = clazz.getMethod("method3", Integer.class, String.class);
+                    method.invoke(kettyListener, number, " DatabaseName : KV");
+                    //反射的包括number databaseName 甚至是className methodName 都可以是从前端的数据 product中取，先找map做映射 然后反射驱动，这边product设计简陋 只是一个字符串，最好是复杂对象 另外没有map kv映射 而是 简单一个if选择
+                    return product.substring(12);
+                }
+
+                Method method = clazz.getMethod("method1");
+                method.invoke(kettyListener);
                 return product.substring(12);
-            }
+            };
 
-            Method method = clazz.getMethod("method1");
-            method.invoke(kettyListener);
-            return product.substring(12);
-        };
+
     }
 
     public Consumer(){

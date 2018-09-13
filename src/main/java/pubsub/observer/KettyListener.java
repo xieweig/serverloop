@@ -1,6 +1,7 @@
 package pubsub.observer;
 
 
+import pubsub.Global;
 
 /**
  * Author : xieweig
@@ -23,5 +24,6 @@ public class KettyListener {
     public void method3(Integer id, String databaseName){
         System.out.println("此处将数据存储到redis with bean StringRedisTemplate "+ id +databaseName);
     }
+
 
 }

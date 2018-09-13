@@ -33,12 +33,25 @@ public class GuiClient extends JFrame {
             }
         });
     }};
+    private JButton stopButton = new JButton("stop"){{
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Global.requests.put("stop server");
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+    }};
 
 
     public GuiClient() throws HeadlessException {
 
         this.init();
         this.add(jButton);
+        this.add(stopButton);
 
         this.setVisible(true);
     }
